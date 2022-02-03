@@ -1,0 +1,698 @@
+module goldstone-platform {
+
+  yang-version "1";
+
+  namespace "http://goldstone.net/yang/platform";
+
+  prefix "gs-platform";
+
+  revision "2019-11-01" {
+      reference "0.1.0";
+  }
+
+  // only keep two
+  typedef form-factor {
+    type enumeration {
+      enum QSFP28;
+      enum CFP2-DCO;
+    }
+  }
+
+
+  // modules, keep them
+  typedef sff-module-type {
+    type enumeration {
+      enum SFF_MODULE_TYPE_UNKNOWN;
+      enum SFF_MODULE_TYPE_400G_CR8;
+      enum SFF_MODULE_TYPE_400G_SR8;
+      enum SFF_MODULE_TYPE_400G_SR4;
+      enum SFF_MODULE_TYPE_400G_BASE_FR8;
+      enum SFF_MODULE_TYPE_400G_FR4;
+      enum SFF_MODULE_TYPE_400G_BASE_LR8;
+      enum SFF_MODULE_TYPE_400G_LR4;
+      enum SFF_MODULE_TYPE_400G_BASE_DR4;
+      enum SFF_MODULE_TYPE_400G_AOC;
+      enum SFF_MODULE_TYPE_400G_BIDI;
+      enum SFF_MODULE_TYPE_100G_AOC;
+      enum SFF_MODULE_TYPE_100G_BASE_CR4;
+      enum SFF_MODULE_TYPE_100G_BASE_SR4;
+      enum SFF_MODULE_TYPE_100G_BASE_LR4;
+      enum SFF_MODULE_TYPE_100G_BASE_ER4;
+      enum SFF_MODULE_TYPE_100G_CWDM4;
+      enum SFF_MODULE_TYPE_100G_PSM4;
+      enum SFF_MODULE_TYPE_100G_SWDM4;
+      enum SFF_MODULE_TYPE_100G_PAM4_BIDI;
+      enum SFF_MODULE_TYPE_40G_BASE_CR4;
+      enum SFF_MODULE_TYPE_40G_BASE_SR4;
+      enum SFF_MODULE_TYPE_40G_BASE_LR4;
+      enum SFF_MODULE_TYPE_40G_BASE_LM4;
+      enum SFF_MODULE_TYPE_40G_BASE_ACTIVE;
+      enum SFF_MODULE_TYPE_40G_BASE_CR;
+      enum SFF_MODULE_TYPE_40G_BASE_SR2;
+      enum SFF_MODULE_TYPE_40G_BASE_SM4;
+      enum SFF_MODULE_TYPE_40G_BASE_ER4;
+      enum SFF_MODULE_TYPE_40G_BASE_SWDM4;
+      enum SFF_MODULE_TYPE_25G_BASE_CR;
+      enum SFF_MODULE_TYPE_25G_BASE_SR;
+      enum SFF_MODULE_TYPE_25G_BASE_LR;
+      enum SFF_MODULE_TYPE_25G_BASE_AOC;
+      enum SFF_MODULE_TYPE_10G_BASE_SR;
+      enum SFF_MODULE_TYPE_10G_BASE_LR;
+      enum SFF_MODULE_TYPE_10G_BASE_LRM;
+      enum SFF_MODULE_TYPE_10G_BASE_ER;
+      enum SFF_MODULE_TYPE_10G_BASE_CR;
+      enum SFF_MODULE_TYPE_10G_BASE_SX;
+      enum SFF_MODULE_TYPE_10G_BASE_LX;
+      enum SFF_MODULE_TYPE_10G_BASE_ZR;
+      enum SFF_MODULE_TYPE_10G_BASE_SRL;
+      enum SFF_MODULE_TYPE_10G_BASE_T;
+      enum SFF_MODULE_TYPE_1G_BASE_SX;
+      enum SFF_MODULE_TYPE_1G_BASE_LX;
+      enum SFF_MODULE_TYPE_1G_BASE_ZX;
+      enum SFF_MODULE_TYPE_1G_BASE_CX;
+      enum SFF_MODULE_TYPE_1G_BASE_T;
+      enum SFF_MODULE_TYPE_100_BASE_LX;
+      enum SFF_MODULE_TYPE_100_BASE_FX;
+      enum SFF_MODULE_TYPE_4X_MUX;
+    }
+  }
+
+
+  grouping platform-fan-top-config {
+    leaf rpm {
+        type uint32;
+    }
+
+    leaf percentage {
+        type uint8;
+    }
+
+    leaf mode {
+        type enumeration {
+            enum OFF;
+            enum SLOW;
+            enum NORMAL;
+            enum FAST;
+        }
+    }
+
+    leaf direction {
+        type enumeration {
+            enum B2F;
+            enum F2B;
+        }
+    }
+  }
+
+  grouping platform-fan-top-state {
+    leaf-list capability {
+          type enumeration {
+              enum B2F;
+              enum F2B;
+              enum SET_RPM;
+              enum SET_PERCENTAGE;
+              enum GET_RPM;
+              enum GET_PERCENTAGE;
+          }
+      }
+
+      leaf fan-state {
+          type enumeration {
+              enum PRESENT;
+              enum NOT-PRESENT;
+              
+          }
+      }
+
+      leaf status {
+          type enumeration {
+              enum RUNNING;
+              enum FAILED;
+          }
+      }
+  }
+
+  // showing the status of the fan
+  grouping platform-fan-top {
+
+    container fan {
+      container config {
+        uses platform-fan-top-config;
+      }
+  
+      container state {
+        config false;
+  
+        uses platform-fan-top-config;
+        uses platform-fan-top-state;
+      }
+    }
+  }
+
+  // We don't need this
+  grouping platform-thermal-top-config {
+  }
+
+  grouping platform-thermal-top-state {
+    leaf-list capability {
+      type enumeration {
+        enum GET_TEMPERATURE;
+        enum GET_WARNING_THRESHOLD;
+        enum GET_ERROR_THRESHOLD;
+        enum GET_SHUTDOWN_THRESHOLD;
+      }
+    }
+
+    leaf-list status {
+      type enumeration {
+        enum PRESENT;
+        enum FAILED;
+      }
+    }
+
+    leaf temperature {
+        type int32;
+        units milli-celsius;
+    }
+
+    container thresholds {
+      leaf warning {
+        type int32;
+        units milli-celcius;
+      }
+      leaf error {
+        type int32;
+        units milli-celcius;
+      }
+      leaf shutdown {
+        type int32;
+        units milli-celcius;
+      }
+    }
+  }
+
+  grouping platform-thermal-top {
+
+    container thermal {
+      container config {
+        uses platform-thermal-top-config;
+      }
+  
+      container state {
+        config false;
+  
+        uses platform-thermal-top-config;
+        uses platform-thermal-top-state;
+      }
+    }
+  }
+
+  // We may not need such many state
+  grouping platform-led-top-config {
+    leaf mode {
+      type enumeration {
+        enum OFF;
+        enum ON;
+        enum BLINKING;
+        enum RED;
+        enum RED_BLINKING;
+        enum ORANGE;
+        enum ORANGE_BLINKING;
+        enum YELLOW;
+        enum YELLOW_BLINKING;
+        enum GREEN;
+        enum GREEN_BLINKING;
+        enum BLUE;
+        enum BLUE_BLINKING;
+        enum PURPLE;
+        enum PURPLE_BLINKING;
+        enum AUTO;
+        enum AUTO_BLINKING;
+      }
+    }
+
+    leaf character {
+        type string {
+            length "1";
+        }
+    }
+  }
+
+  // We may not need such many states
+  grouping platform-led-top-state {
+    leaf-list capability {
+      type enumeration {
+        enum ON_OFF;
+        enum CHAR;
+        enum RED;
+        enum RED_BLINKING;
+        enum ORANGE;
+        enum ORANGE_BLINKING;
+        enum YELLOW;
+        enum YELLOW_BLINKING;
+        enum GREEN;
+        enum GREEN_BLINKING;
+        enum BLUE;
+        enum BLUE_BLINKING;
+        enum PURPLE;
+        enum PURPLE_BLINKING;
+        enum AUTO;
+        enum AUTO_BLINKING;
+      }
+    }
+
+    leaf-list status {
+      type enumeration {
+        enum PRESENT;
+        enum FAILED;
+        enum ON;
+      }
+    }
+  }
+
+  grouping platform-led-top {
+
+    container led {
+      container config {
+        uses platform-led-top-config;
+      }
+  
+      container state {
+        config false;
+  
+        uses platform-led-top-config;
+        uses platform-led-top-state;
+      }
+    }
+  }
+
+  // We don't need this
+  grouping platform-sys-top-config {
+  }
+
+  grouping platform-sys-top-state {
+
+    container onie-info {
+        leaf product-name {
+          type string;
+        }
+        leaf part-number {
+          type string;
+        }
+        leaf serial-number {
+          type string;
+        }
+        leaf mac {
+          type string;
+        }
+        leaf manufacture-date {
+          type string;
+        }
+        leaf device-version {
+          type string;
+        }
+        leaf label-revision {
+          type string;
+        }
+        leaf platform-name {
+          type string;
+        }
+        leaf onie-version {
+          type string;
+        }
+        leaf mac-range {
+          type uint16;
+        }
+        leaf manufacturer {
+          type string;
+        }
+        leaf country-code {
+          type string;
+        }
+        leaf vendor {
+          type string;
+        }
+        leaf diag-version {
+          type string;
+        }
+        leaf service-tag {
+          type string;
+        }
+        leaf ctc {
+          type uint32;
+        }
+    }
+
+    container platform-info {
+        leaf cpld-versions {
+          type string;
+        }
+        leaf other-versions {
+          type string;
+        }
+    }
+  }
+
+  grouping platform-sys-top {
+
+    container sys {
+      container config {
+        uses platform-sys-top-config;
+      }
+
+      container state {
+        config false;
+
+        uses platform-sys-top-config;
+        uses platform-sys-top-state;
+      }
+    }
+  }
+
+
+
+  grouping platform-psu-top-config {
+  }
+
+  grouping platform-psu-top-state {
+    leaf-list capability {
+      type enumeration {
+        enum AC;
+        enum DC12;
+        enum DC48;
+        enum VIN;
+        enum VOUT;
+        enum IIN;
+        enum IOUT;
+        enum PIN;
+        enum POUT;
+      }
+    }
+
+    leaf psu-state {
+      type enumeration {
+        enum PRESENT;
+        enum NOT-PRESENT;
+      }
+    }
+
+    leaf status {
+     type enumeration {
+       enum UNPLUGGED-OR-FAILED;
+       enum RUNNING;
+     }
+   }
+
+    leaf model {
+      type string;
+    }
+
+    leaf serial {
+      type string;
+    }
+
+    leaf input-voltage {
+      type int32;
+      units milli-volts;
+    }
+
+    leaf output-voltage {
+      type int32;
+      units milli-volts;
+    }
+
+    leaf input-current {
+      type int32;
+      units milli-amps;
+    }
+
+    leaf output-current {
+      type int32;
+      units milli-amps;
+    }
+
+    leaf input-power {
+      type int32;
+      units milli-watts;
+    }
+
+    leaf output-power {
+      type int32;
+      units milli-watts;
+    }
+  }
+
+  grouping platform-psu-top {
+
+    container psu {
+      container config {
+        uses platform-psu-top-config;
+      }
+  
+      container state {
+        config false;
+  
+        uses platform-psu-top-config;
+        uses platform-psu-top-state;
+      }
+    }
+  }
+
+  // We don't need this
+  grouping platform-piu-top-config {
+  }
+
+  grouping platform-piu-top-state {
+
+    leaf-list status {
+      type enumeration {
+        enum PRESENT;
+        enum FAILED;
+        enum UNPLUGGED;
+      }
+    }
+
+    leaf piu-type {
+      type enumeration {
+          enum ACO;
+          enum DCO;
+          enum QSFP28;
+          enum UNKNOWN;
+      }
+    }
+
+    leaf model {
+      type string;
+    }
+
+    leaf serial {
+      type string;
+    }
+
+    leaf cfp2-presence {
+      type enumeration {
+        enum PRESENT;
+        enum UNPLUGGED;
+      }
+    }
+
+  }
+
+  grouping platform-piu-top {
+
+    container piu {
+      container config {
+        uses platform-piu-top-config;
+      }
+  
+      container state {
+        config false;
+  
+        uses platform-piu-top-config;
+        uses platform-piu-top-state;
+      }
+    }
+  }
+
+  // We don't need this
+  grouping platform-transceiver-top-config {
+  }
+
+  grouping platform-transceiver-top-state {
+
+    leaf presence {
+      type enumeration {
+        enum PRESENT;
+        enum UNPLUGGED;
+      }
+    }
+
+    leaf model {
+      type string;
+    }
+
+    leaf serial {
+      type string;
+    }
+
+    leaf vendor {
+      type string;
+    }
+
+    leaf form-factor {
+      type form-factor;
+    }
+
+    leaf sff-module-type {
+      type sff-module-type;
+    }
+
+  }
+
+  grouping platform-transceiver-top {
+
+    container transceiver {
+      container config {
+        uses platform-transceiver-top-config;
+      }
+
+      container state {
+        config false;
+
+        uses platform-transceiver-top-config;
+        uses platform-transceiver-top-state;
+      }
+    }
+  }
+
+  // give device name
+  grouping platform-component-config {
+    description
+      "Configuration data for components";
+
+    leaf name {
+      type string;
+      description
+        "Device name for the component -- this may not be a
+        configurable parameter on many implementations.  Where
+        component preconfiguration is supported, for example,
+        the component name may be configurable.";
+    }
+  }
+
+  grouping platform-component-state {
+    description
+      "Operational state data for device components.";
+
+    leaf type {
+      type enumeration {
+          enum SYS;
+          enum THERMAL;
+          enum FAN;
+          enum PSU;
+          enum LED;
+          enum MODULE;
+          enum RTC;
+          enum PIU;
+          enum TRANSCEIVER;
+      }
+      description
+        "Type of component as identified by the system";
+    }
+
+    leaf id {
+      type uint32;
+      description
+        "Unique identifier assigned by the system for the
+        component";
+    }
+
+    leaf description {
+      type string;
+      description
+        "System-supplied description of the component";
+    }
+
+    leaf parent {
+      type leafref {
+        path "../../../component/config/name";
+      }
+      description
+        "Reference to the name of the parent component.  Note that
+        this reference must be kept synchronized with the
+        corresponding subcomponent reference from the parent
+        component.";
+    }
+
+    leaf-list children {
+        type leafref {
+            path "../../../component/config/name";
+        }
+    }
+  }
+
+  grouping platform-component-top {
+    description
+      "Top-level grouping for components in the device inventory";
+
+    container components {
+      description
+        "Enclosing container for the components in the system.";
+
+      list component {
+        key "name";
+        description
+          "List of components, keyed by component name.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "References the component name";
+        }
+
+        container config {
+          description
+            "Configuration data for each component";
+
+          uses platform-component-config;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data for each component";
+
+          uses platform-component-config;
+          uses platform-component-state;
+
+        }
+
+        uses platform-fan-top;
+        uses platform-thermal-top;
+        uses platform-led-top;
+        uses platform-sys-top;
+        uses platform-psu-top;
+        uses platform-piu-top;
+        uses platform-transceiver-top;
+      }
+    }
+  }
+
+
+  uses platform-component-top;
+
+
+  notification piu-notify-event {
+    uses platform-component-config;
+    uses platform-piu-top-state;
+  }
+
+  notification transceiver-notify-event {
+    uses platform-component-config;
+    uses platform-transceiver-top-state;
+  }
+}
